@@ -1,34 +1,81 @@
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ConsoleApp {
-    public static void main(String[] args)throws IOException {
+    static String text = "";
+    static String openedFile = "";
+    static boolean fileIsOpened = false;
+    static String partOfOpenedFile = "";
+    public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
-        PrintStream out = new PrintStream(new FileOutputStream("output.txt"));
         String line = scanner.nextLine();
+        File directory = new File("C:\\Users\\Александр\\Desktop\\Database\\ITMO\\Programming\\Java_Olimp_test");
+        String[] list;
         while(!(line.equals("quit")||line.equals("exit")||line.equals("q"))){
             String[] data = line.split(" ");
-            String text;
             switch(data[0]){
+                case "list":
+                    list = directory.list();
+                    try {
+                        for (String f:list) {
+                            System.out.println(f);
+                        }
+                    } catch (NullPointerException e){
+                        System.out.println("Directory is empty");
+                    }
+                    break;
+                case "open":
+                    if(!fileIsOpened) {
+                        if (Arrays.toString(directory.list()).contains(data[1])) {
+                            try {
+                                partOfOpenedFile = data[1];
+                                openedFile = directory.toString() + "\\" + data[1] + "\\";
+                                text = FileUtils.readFile(openedFile);
+                                fileIsOpened = true;
+                                if (text != null) {
+                                    System.out.println("File " + data[1] + " is opened");
+                                } else {
+                                    System.out.println("File does not exist");
+                                }
+                            } catch (NullPointerException e) {
+                                System.out.println("Choose file");
+                            }
+                        } else {
+                            FileUtils.createFile(data[1]);
+                            System.out.println("File " + data[1] + " is created");
+                        }
+                    } else {
+                        System.out.println("Close the previous file first");
+                    }
+                    break;
                 case "print":
-                    text = line.substring(data[0].length() + 1);
-                    out.print(text);
+                    text += line.substring(data[0].length() + 1);
+                    FileUtils.appendFile(openedFile,text);
                     break;
                 case "println":
-                    text = line.substring(data[0].length() + 1);
-                    out.println(text);
+                    text += line.substring(data[0].length() + 1);
+                    FileUtils.appendFile(openedFile, text +"\n");
                     break;
-                case "read":
-                    System.out.println(FileUtils.readFile(data[1]));
+                case "showFile":
+                    try {
+                        System.out.println(text);
+                    } catch (NullPointerException e){
+                        System.out.println("File is empty");
+                    }
                     break;
                 case "touch":
                     FileUtils.createFile(data[1]);
-                    break;// TODO: 26.02.2019 сделать append в файл
-                case "quit":
-                case "exit":
-                case "q":
+                    break;
+                case "close":
+                    closeFile(partOfOpenedFile);
+                    break;
+                case "info":
+                    if(fileIsOpened){
+                        System.out.println("Active file: " + partOfOpenedFile);
+                    } else {
+                        System.out.println("No active file");
+                    }
                     break;
                 case "help":
                     System.out.println("List of available commands:\nprint <data> - to write data to the file\n" +
@@ -44,6 +91,12 @@ public class ConsoleApp {
             line = scanner.nextLine();
         }
         scanner.close();
-        out.close();
+    }
+
+    static private void closeFile(String filename){
+        text = "";
+        fileIsOpened = false;
+        openedFile = openedFile.replace(filename, "");
+        partOfOpenedFile = "";
     }
 }

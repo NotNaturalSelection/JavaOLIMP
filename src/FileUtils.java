@@ -58,15 +58,15 @@ public class FileUtils {
         Scanner scanner;
         try {
             scanner = new Scanner(file);
+            String text = "";
+            while (scanner.hasNextLine()){
+                text += (scanner.nextLine() + "\n");
+            }
+            return text;
         } catch(FileNotFoundException ex){
-            ex.printStackTrace();
-            throw new RuntimeException("Created file, but it was deleted", ex);
+            System.out.println("Permission denied");
+            return null;
         }
-        String text = "";
-        while ( scanner.hasNextLine()){
-            text += (scanner.nextLine() + "\n");
-        }
-        return text;
     }
 
     /**
