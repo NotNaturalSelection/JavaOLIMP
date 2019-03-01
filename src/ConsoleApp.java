@@ -50,16 +50,16 @@ public class ConsoleApp {
                     }
                     break;
                 case "print":
-                    text += line.substring(data[0].length() + 1);
+                    text = line.substring(data[0].length() + 1);
                     FileUtils.appendFile(openedFile,text);
                     break;
                 case "println":
-                    text += line.substring(data[0].length() + 1);
+                    text = line.substring(data[0].length() + 1);
                     FileUtils.appendFile(openedFile, text +"\n");
                     break;
                 case "showFile":
                     try {
-                        System.out.println(text);
+                        System.out.println(FileUtils.readFile(openedFile));
                     } catch (NullPointerException e){
                         System.out.println("File is empty");
                     }
