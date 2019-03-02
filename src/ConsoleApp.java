@@ -3,11 +3,11 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class ConsoleApp {
-    static String text = "";
-    static String openedFile = "";
-    static boolean fileIsOpened = false;
-    static String partOfOpenedFile = "";
-    static String path = "";
+    private static String text = "";
+    private static String openedFile = "";
+    private static boolean fileIsOpened = false;
+    private static String partOfOpenedFile = "";
+    private static String path = "";
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
         path = "C:\\Users\\Александр\\Desktop\\Database\\ITMO\\Programming\\Java_Olimp_test\\";
@@ -22,6 +22,56 @@ public class ConsoleApp {
                     directory = new File(path);
                     list = directory.list();
                     try {
+                        for (String filename : list) {
+                            File f = new File(path + filename);
+                            String fileFlag;
+                            String hiddenFlag;
+                            String executeFlag = "-";
+                            String writeFlag = "-";
+                            String readFlag = "-";
+                            if (f.canExecute()) {
+                                executeFlag = "x";
+                            }
+                            if (f.canRead()) {
+                                readFlag = "r";
+                            }
+                            if (f.canWrite()) {
+                                writeFlag = "w";
+                            }
+                            long value;
+                            if (f.isFile()) {
+                                fileFlag = "file";
+                            } else {
+                                try {
+                                    if (f.listFiles().length > 0) {
+                                        fileFlag = "+dir";//если директория не пустая
+                                    } else {
+                                        fileFlag = "-dir";//если пустая
+                                    }
+                                } catch (NullPointerException e){
+                                    fileFlag = "-dir";
+                                }
+                            }
+                            if (f.isHidden()) {
+                                hiddenFlag = "hidden";
+                            } else {
+                                hiddenFlag = "displayed";
+                            }
+                            if (f.length() / 1024 < 1 && f.length() > 0) {
+                                value = 1;
+                            } else {
+                                value =  f.length() / 1024;
+                            }
+                            System.out.printf("%s %-30s %dKB  %s%s%s  %s\n", fileFlag, f.getName(), value, readFlag, writeFlag, executeFlag, hiddenFlag);
+                        }
+                    } catch (NullPointerException e){
+                        System.out.println("Directory is empty");
+                    }
+                    break;
+                case "ls":
+                    directory = new File(path);
+                    list = directory.list();
+                    try {
                         for (String f:list) {
                             System.out.println(f);
                         }
@@ -29,11 +79,31 @@ public class ConsoleApp {
                         System.out.println("Directory is empty");
                     }
                     break;
-                case "open":
+                /*case "chmod":
                     try {
-                        if (!fileIsOpened) {
-                            if (Arrays.toString(directory.list()).contains(data[1])) {
-                                try {
+                        File f = new File(path + data[2]);
+                        f.setExecutable(false);
+                        f.setReadable(false);
+                        f.setWritable(false);
+                        if (data[1].contains("r")) {
+                            f.setReadable(true);
+                        }
+                        if (data[1].contains("w")) {
+                            f.setWritable(true);
+                        }
+                        if (data[1].contains("x")) {
+                            f.setExecutable(true);
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e){
+                        System.out.println("Incorrect command format");
+                    }
+                    break; */
+                                                                                             //Закоменчен из-за неработоспособности по неизвестной причине
+                case "open":
+                    try {//Проверка на ошибку
+                        if (!fileIsOpened) {//Проверка на открытый файл
+                            if (Arrays.toString(directory.list()).contains(data[1])) {//Проверка файла на существование
+                                try {//Проверка введенного имени файла
                                     if (new File(path + data[1] + "\\").isFile()) {
                                         partOfOpenedFile = data[1];
                                         openedFile = path + data[1] + "\\";
@@ -45,15 +115,14 @@ public class ConsoleApp {
                                             System.out.println("File does not exist");
                                         }
                                     } else {
-                                        path = directory.toString() + data[1] + "\\";
+                                        path = directory.toString()+"\\" + data[1] + "\\";
                                         showPath();
                                     }
                                 } catch (NullPointerException e) {
                                     System.out.println("Choose file first");
                                 }
                             } else {
-                                FileUtils.createFile(data[1]);
-                                System.out.println("File " + data[1] + " is created");
+                                System.out.println("File does not exist");
                             }
                         } else {
                             System.out.println("Close the previous file first");
@@ -147,11 +216,11 @@ public class ConsoleApp {
                 case "mkdir":
                     try {
                         File f1 = new File(path + "\\" + data[1]);
-                        f1.mkdir();
-                        if (f1.exists()) {
-                            System.out.println("Permission denied");
-                        } else {
+
+                        if (f1.mkdir()) {
                             System.out.println("The directory was created successfully");
+                        } else {
+                            System.out.println("Permission denied");
                         }
                     } catch (ArrayIndexOutOfBoundsException e){
                         System.out.println("Incorrect command format");
@@ -178,7 +247,9 @@ public class ConsoleApp {
                             "open <file or directory name> - open file or directory(if file does not exist, 'open' creates new file\n" +
                             "back - goes to the directory above the level\n" +
                             "close - to close the current file\n" +
-                            "list - to show the contents of current directory\n" +
+                            "ls - to show the contents of current directory\n" +
+                            "list - to show the contents of current directory with some information\n" +
+                            //"chmod <mode> <filename> - to change access to the file\n" +
                             "touch <filename> - creates file in current directory\n" +
                             "print <data> - to write data into opened file\n" +
                             "println <data> - to write data into opened file with line break\n" +
