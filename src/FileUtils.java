@@ -21,7 +21,6 @@ public class FileUtils {
             try {
                 FileWasCreated = file.createNewFile() ;
             } catch (IOException ex) {
-                ex.printStackTrace();
                 FileWasCreated = false;
             }
         }
@@ -64,7 +63,7 @@ public class FileUtils {
             }
             return text;
         } catch(FileNotFoundException ex){
-            System.out.println("Permission denied");
+            System.out.println("File not found");
             return null;
         }
     }
