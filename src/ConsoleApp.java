@@ -8,8 +8,15 @@ public class ConsoleApp {
     private static boolean fileIsOpened = false;
     private static String partOfOpenedFile = "";
     private static String path = "C:/Users/Александр/Desktop/Database/ITMO/Programming/Java_Olimp_test/";
+    private static String slash;
 
     public static void main(String[] args) {
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            slash = "\\";
+        } else {
+            slash = "/";
+        }
+        path = new File("").getAbsolutePath() + slash;
         Scanner scanner = new Scanner(System.in);
         showPath();
         String line = scanner.nextLine();
@@ -115,17 +122,30 @@ public class ConsoleApp {
      * Поднимется на каталог уровнем выше
      */
     static private void back() {
-        String[] s = path.split("\\\\");
-        path = "";
+        String[] s;
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            s = path.split("\\\\");
+        } else {
+            s = path.split("/");
+        }
+        StringBuilder path1 = new StringBuilder();
         if (s.length > 2) {
             for (int i = 0; i < s.length - 1; i++) {
-                path += s[i] + "\\";
+                path1.append(s[i]);
+                path1.append(slash);
             }
+            path = path1.toString();
             showPath();
         } else {
-            path = "C:\\";
-            System.out.println("The root directory \"C:\\\" is reached");
-            showPath();
+            if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                path = "C:\\";
+                System.out.println("The root directory \"C:\\\" is reached");
+                showPath();
+            } else {
+                path = "/";
+                System.out.println("The root is reached");
+                showPath();
+            }
         }
     }
 
@@ -149,15 +169,13 @@ public class ConsoleApp {
     static private void delete(String filePath) {
         File f = new File(path + filePath);
         if (f.isFile()) {
-            f.delete();
-            if (f.exists()) {
+            if (!f.delete()) {
                 System.out.println("Permission denied");
             } else {
                 System.out.println("The file was deleted");
             }
         } else {
-            f.delete();
-            if (f.exists()) {
+            if (!f.delete()) {
                 System.out.println("Permission denied");
             } else {
                 System.out.println("The directory was deleted");
@@ -186,8 +204,8 @@ public class ConsoleApp {
      * @param newName  строка - новое название файла или директории
      */
     static private void rename(String filePath, String newName) {
-        File f2 = new File(path + "\\" + filePath);
-        File newNameFile = new File(path + "\\" + newName);
+        File f2 = new File(path + slash + filePath);
+        File newNameFile = new File(path + slash + newName);
         if (f2.renameTo(newNameFile)) {
             System.out.println("File was renamed");
         }
@@ -273,9 +291,9 @@ public class ConsoleApp {
         if (!fileIsOpened) {
             if (Arrays.toString(directory.list()).contains(filePath)) {
                 try {
-                    if (new File(path + filePath + "\\").isFile()) {
+                    if (new File(path + filePath + slash).isFile()) {
                         partOfOpenedFile = filePath;
-                        openedFile = path + filePath + "\\";
+                        openedFile = path + filePath + slash;
                         text = FileUtils.readFile(openedFile);
                         fileIsOpened = true;
                         if (text != null) {
@@ -302,7 +320,7 @@ public class ConsoleApp {
      */
     static private void cd(String filePath) {
         if (new File(path + filePath).isDirectory()) {
-            path += filePath + "\\";
+            path += filePath + slash;
             showPath();
         } else {
             System.out.println("Directory not found");
@@ -383,17 +401,32 @@ public class ConsoleApp {
     static private void chmod(String mode, String pathFile) {
         try {
             File f = new File(path + pathFile);
-            f.setExecutable(false);
-            f.setReadable(false);
-            f.setWritable(false);
             if (mode.contains("r")) {
-                f.setReadable(true);
+                if (!f.setReadable(true)) {
+                    System.out.println("You cannot change the right to read");
+                }
+            } else {
+                if (!f.setReadable(false)) {
+                    System.out.println("You cannot change the right to read");
+                }
             }
             if (mode.contains("w")) {
-                f.setWritable(true);
+                if (!f.setWritable(true)) {
+                    System.out.println("You cannot change the right to write");
+                }
+            } else {
+                if (!f.setWritable(false)) {
+                    System.out.println("You cannot change the right to write");
+                }
             }
             if (mode.contains("x")) {
-                f.setExecutable(true);
+                if (!f.setExecutable(true)) {
+                    System.out.println("You cannot change the right to execute");
+                }
+            } else {
+                if (!f.setExecutable(false)) {
+                    System.out.println("You cannot change the right to execute");
+                }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Incorrect command format");
