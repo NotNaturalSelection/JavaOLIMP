@@ -221,7 +221,7 @@ public class ConsoleApp {
                 "close - to close the current file\n" +
                 "ls - to show the contents of current directory\n" +
                 "list - to show the contents of current directory with some information\n" +
-                //"chmod <mode> <filename> - to change access to the file\n" +
+                "chmod <mode> <filename> - to change access to the file\n" +
                 "touch <filename> - creates file in current directory\n" +
                 "print <data> - to write data into opened file\n" +
                 "println <data> - to write data into opened file with line break\n" +
